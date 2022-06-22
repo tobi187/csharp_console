@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "sftpTest": {
+      "commandName": "Project",
+      "commandLineArgs": "127.0.0.1 -x sftp -p *.pdf -a tobi:nikelef123"
+    }
+  }
+}
