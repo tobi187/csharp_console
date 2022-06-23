@@ -17,6 +17,13 @@ namespace csharp_console
             Dealer = new Dealer(dealerName, this);
         }
 
+        public List<Player> PlayersWithDealer()
+        {
+            var copy = Players.ToList();
+            copy.Add(Dealer);
+            return copy;
+        }
+
         public void PlayRound()
         {
             Dealer.NewRound();
@@ -47,23 +54,66 @@ namespace csharp_console
 
         public void DetermineWinner()
         {
-            var noLooser = Players.Where(x => x.State != PlayerState.IsOver21);
-            var dealerSum = Dealer.State == PlayerState.IsOver21 ? -1 : Dealer.getSum();
-            var player = noLooser.MaxBy(x => x.getSum());
-            
-            if (player == null && dealerSum < -1)
-                Console.WriteLine("Ihr seid alle so schlecht");
-
-            if (player == null || Dealer.getSum() > player.getSum())
+            var playerWhichCanWin = PlayersWithDealer().Where(x => x.State != PlayerState.IsOver21);
+            var highScore = playerWhichCanWin.MaxBy(x => x.getSum());
+            if (highScore == null)
             {
-                Dealer.MeWon();
+                ShowWinnerBoard();
                 return;
             }
             
-            var winners = noLooser.Where(x => x.getSum() == player.getSum()).ToList();
-            winners.ForEach(x => x.MeWon());
+            var winner = playerWhichCanWin.Where(x => x.getSum() == highScore.getSum());
+            
+            if (winner.Count() > 1)
+                ShowWinnerBoard(winner.ToList());
+            else
+                ShowWinnerBoard(winner.Single());
+            
+        }
+        // or insert playername instead of reference
+        public void ShowBoard(Player currentPlayer)
+        {
+            foreach(var player in PlayersWithDealer())
+            {
+                if (player == currentPlayer) continue;
+                var openCard = player.HandCards.Single(x => x.IsOpen);
+                if (player.State == PlayerState.IsDrawing || player.State == PlayerState.StoppedDrawing)
+                    Console.WriteLine($"{player.Name} has a {openCard} and {player.HandCards.Count - 1} Cards reversed");
+                else if (player.State == PlayerState.IsOver21)
+                    Console.WriteLine($"{player.Name} has Gone over 21 with {player.ShowCards()}");
+            }
+            Console.WriteLine($"You have {string.Join(", ", currentPlayer.HandCards)}. Your Total is {currentPlayer.getSum()}");
+            
+        }
+        
+        public void ShowWinnerBoard()
+        {
+            Console.WriteLine("EndBoard");
+            PlayersWithDealer().ForEach(x => Console.WriteLine($"{x.Name} has finished with {x.ShowCards()}"));
+            Console.WriteLine("\nYou are all very not good");
+        }
+        public void ShowWinnerBoard(Player winner)
+        {
+            Console.WriteLine("EndBoard");
+            foreach (var x in PlayersWithDealer().Where(x => x != winner))
+                Console.WriteLine($"{x.Name} has finished with {x.ShowCards()}");
+            Console.WriteLine($"\nCongratulations {winner.Name}");
+            Console.WriteLine($"You've won with a hand of {winner.ShowCards()}");
+
+            winner.MeWon();
         }
 
+        public void ShowWinnerBoard(List<Player> winners)
+        {
+            Console.WriteLine("Endboard");
+            foreach (var x in PlayersWithDealer().Where(x => !winners.Contains(x)))
+            {
+                Console.WriteLine($"{x.Name} has finished with {x.ShowCards()}");
+            }
+            Console.WriteLine($"\n{string.Join(", ", winners.Select(x => x.Name))} have tied. Congratulations to y'all");
+            winners.ForEach(x => Console.WriteLine($"{x.Name} was a winner with a hand of {x.ShowCards()}"));
+            winners.ForEach(x => x.MeWon());
+        }
     }
 
     internal class Player
@@ -84,7 +134,8 @@ namespace csharp_console
         public virtual void DrawCard()
         {
             //if (Game.GameIsOver()) return;
-            Console.Write($"Do you want to draw {Name} ? (n for no)");
+            Game.ShowBoard(this);
+            Console.Write($"Do you want to draw {Name} ? (n for no) ");
 
             if (Console.ReadLine() == "n")
             {
@@ -94,13 +145,20 @@ namespace csharp_console
             Draw();
         }
 
-        private void Draw()
+        private protected void Draw()
         {
             HandCards.Add(new Card());
 
             CheckAce();
 
             CheckCards();
+        }
+
+        public string ShowCards()
+        {
+            
+            return string.Join(",", HandCards);
+            
         }
 
         private void CheckCards()
@@ -136,7 +194,7 @@ namespace csharp_console
 
         public void MeWon()
         {
-            Console.WriteLine($"{Name} hat gewonnen");
+            //Game.ShowBoard(this);
             Wins++;
         }
 
@@ -158,9 +216,7 @@ namespace csharp_console
             var sum = getSum();
 
             if (sum < 17)
-                DrawCard();
-            else
-                return;
+                Draw();
         }
     }
 
@@ -168,15 +224,15 @@ namespace csharp_console
     {
         public CardType Type { get; }
         public CardValue Value { get; private set; }
-        public bool IsOpen;
+        public bool IsOpen { get; private set; }
         private Random _random = new Random();
 
         internal Card(bool isOpen = false)
         {
-            var cardTypes = Enum.GetValues<CardType>();
-            var cardValues = Enum.GetValues<CardValue>();
+            CardType[] cardTypes = Enum.GetValues<CardType>();
+            CardValue[] cardValues = Enum.GetValues<CardValue>();
             Type = (CardType)cardTypes.GetValue(_random.Next(cardTypes.Length));
-            Value = (CardValue)cardValues.GetValue(_random.Next(cardTypes.Length));
+            Value = (CardValue)cardValues.GetValue(_random.Next(1, cardValues.Length));
             IsOpen = isOpen;
         }
 
