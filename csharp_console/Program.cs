@@ -1,14 +1,74 @@
-﻿//using System;
-using csharp_console;
+﻿using csharp_console;
+using csharp_console.shortestPath;
 
-var bj = new BlackJack(new List<string>() { "Tobi"}, "Dealer");
-bj.PlayRound();
+
+var f = File.ReadAllLines("shortestPath/cF.txt");
+
+var data = Enumerable.Range(1, 5).Select(x => x.ToString());
+
+var adjList = new Dictionary<string, List<Edges>>();
+
+foreach (var ch in data)
+{
+    var edges = new List<Edges>();
+    foreach (var line in f)
+    {
+        if (line.StartsWith(ch))
+        {
+            var dw = line.Split();
+            var ed = new Edges(dw[1], int.Parse(dw[2]));
+            edges.Add(ed);
+        }
+    }
+    adjList.Add(ch, edges);
+}
+
+var d = new CodeforcesDeikstra(adjList, "1", "5");
+
+Console.WriteLine(d.GameLoop());
 
 return;
 
+var c = File.ReadAllLines("shortestPath/citys.txt");
+
+var e = File.ReadAllLines("shortestPath/weights.txt");
+
+// Dict<Node, List<Node>> -> 
+
+ValueTuple<Node, List<Node>> GetAdjacency(string n)
+{
+    var neighbours = new List<Node>();
+    for (var i = 0; i < e.Length; i += 3)
+    {
+        if (n == e[i])
+        {
+            var node = new Node(e[i + 1], int.Parse(e[i + 2]));
+            neighbours.Add(node);
+        }
+    }
+    
+    return (new Node(n), neighbours);
+}
+
+var adjacencyList = c.Select(x => GetAdjacency(x)).ToDictionary(x => x.Item1, x => x.Item2);
+
+var b = c.Select(x => new Node(x));
+
+var dijkstra = new Deikstra(adjacencyList, "ATL", "LAX");
+
+var r = dijkstra.FindShortestPath();
+
+Console.WriteLine(r);
+
+return;
+
+var bj = new BlackJack(new List<string>() { "Tobi" }, "Dealer");
+bj.PlayRound();
+
+
 var l = new leetcode();
 
-var c = l.MaximumWhiteTiles(new int[][] { new int[] { 1,5}, new int[] { 10,11},new int[] { 12,18}, new int[] { 20,25} ,new int[] { 30,32}}, 10);
+var cd = l.MaximumWhiteTiles(new int[][] { new int[] { 1, 5 }, new int[] { 10, 11 }, new int[] { 12, 18 }, new int[] { 20, 25 }, new int[] { 30, 32 } }, 10);
 Console.WriteLine(c);
 
 
