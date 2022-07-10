@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,11 +10,13 @@ namespace csharp_console
     {
         public List<Player> Players { get; private set; }
         public Player Dealer { get; private set; }
-         
+        public Deck Deck { get; private set; }
+
         internal BlackJack(List<string> playerNames, string dealerName)
         {
             Players = playerNames.Select(x => new Player(x, this)).ToList();
             Dealer = new Dealer(dealerName, this);
+            Deck = new Deck();
         }
 
         public List<Player> PlayersWithDealer()
@@ -26,9 +28,11 @@ namespace csharp_console
 
         public void PlayRound()
         {
+            var deck = new Deck();
+
             Dealer.NewRound();
             Players.ForEach(x => x.NewRound());
-            
+
             while (!GameIsOver())
             {
                 Players.ForEach(x => x.DrawCard());
@@ -61,19 +65,19 @@ namespace csharp_console
                 ShowWinnerBoard();
                 return;
             }
-            
+
             var winner = playerWhichCanWin.Where(x => x.getSum() == highScore.getSum());
-            
+
             if (winner.Count() > 1)
                 ShowWinnerBoard(winner.ToList());
             else
                 ShowWinnerBoard(winner.Single());
-            
+
         }
         // or insert playername instead of reference
         public void ShowBoard(Player currentPlayer)
         {
-            foreach(var player in PlayersWithDealer())
+            foreach (var player in PlayersWithDealer())
             {
                 if (player == currentPlayer) continue;
                 var openCard = player.HandCards.Single(x => x.IsOpen);
@@ -83,9 +87,9 @@ namespace csharp_console
                     Console.WriteLine($"{player.Name} has Gone over 21 with {player.ShowCards()}");
             }
             Console.WriteLine($"You have {string.Join(", ", currentPlayer.HandCards)}. Your Total is {currentPlayer.getSum()}");
-            
+
         }
-        
+
         public void ShowWinnerBoard()
         {
             Console.WriteLine("EndBoard");
@@ -118,6 +122,8 @@ namespace csharp_console
 
     internal class Player
     {
+        // 2 Karte bei allen sichtbar ausser Dealer
+        // bei aufdecken natural blackjack gewinnt 
         public string Name { get; }
         public List<Card> HandCards { get; set; } // = new List<Card>();
         public int Wins { get; private set; } = 0;
@@ -147,7 +153,7 @@ namespace csharp_console
 
         private protected void Draw()
         {
-            HandCards.Add(new Card());
+            HandCards.Add(Game.Deck.GetCard());
 
             CheckAce();
 
@@ -156,9 +162,9 @@ namespace csharp_console
 
         public string ShowCards()
         {
-            
+
             return string.Join(",", HandCards);
-            
+
         }
 
         private void CheckCards()
@@ -176,8 +182,25 @@ namespace csharp_console
 
         public int getSum()
         {
-            return 
-                HandCards.Sum(x => (int)x.Value);
+            var cardValues =
+                new Dictionary<CardValue, int>() {
+                    { CardValue.Two, 2 },
+                    { CardValue.Three, 3 },
+                    { CardValue.Four, 4 },
+                    { CardValue.Five, 5 },
+                    { CardValue.Six, 6 },
+                    { CardValue.Seven, 7 },
+                    { CardValue.Eight, 8 },
+                    { CardValue.Nine, 9 },
+                    { CardValue.Ten, 10 },
+                    { CardValue.Jack, 10 },
+                    { CardValue.Queen, 10 },
+                    { CardValue.King, 10 },
+                    { CardValue.Ace, 11 }
+                };
+
+            return
+                HandCards.Sum(x => x.GetValue());
         }
 
         private void CheckAce()
@@ -185,11 +208,11 @@ namespace csharp_console
             var ace = HandCards.FindIndex(x => x.Value == CardValue.Ace);
             if (ace == -1)
                 return;
-            
+
             if (getSum() < 22)
                 return;
 
-            HandCards[ace].changeAceValue();            
+            HandCards[ace].changeAceValue();
         }
 
         public void MeWon()
@@ -201,15 +224,14 @@ namespace csharp_console
         public void NewRound()
         {
             HandCards.Clear();
-            HandCards.Add(new Card(isOpen: true));
-            HandCards.Add(new Card());
+            HandCards.AddRange(Game.Deck.InitalCards());
             State = PlayerState.IsDrawing;
         }
     }
 
     internal class Dealer : Player
     {
-        internal Dealer(string name, BlackJack game) : base(name, game) {}
+        internal Dealer(string name, BlackJack game) : base(name, game) { }
 
         public override void DrawCard()
         {
@@ -220,21 +242,57 @@ namespace csharp_console
         }
     }
 
+    internal class Deck
+    {
+        private List<Card> Cards;
+        internal Deck()
+        {
+            Cards =
+                (from t in Enum.GetValues<CardType>()
+                 from v in Enum.GetValues<CardValue>()
+                 where v != CardValue.AceSmall
+                 select new Card(t, v))
+                 .ToList();
+
+            Cards = Cards.OrderBy(_ => new Guid()).ToList();
+        }
+
+        public Card GetCard()
+        {
+            var card = Cards.First();
+            Cards.Remove(card);
+            return card;
+        }
+
+        public List<Card> InitalCards()
+        {
+            var cards = Cards.Take(2).ToList();
+            Cards.RemoveRange(0, 2);
+            cards[0].IsOpen = true;
+            return cards;
+        }
+    }
+
     internal class Card
     {
         public CardType Type { get; }
         public CardValue Value { get; private set; }
-        public bool IsOpen { get; private set; }
-        private Random _random = new Random();
-
-        internal Card(bool isOpen = false)
-        {
-            CardType[] cardTypes = Enum.GetValues<CardType>();
-            CardValue[] cardValues = Enum.GetValues<CardValue>();
-            Type = (CardType)cardTypes.GetValue(_random.Next(cardTypes.Length));
-            Value = (CardValue)cardValues.GetValue(_random.Next(1, cardValues.Length));
-            IsOpen = isOpen;
-        }
+        public bool IsOpen { get; set; }
+        private Dictionary<CardValue, int> cardParser = new Dictionary<CardValue, int>() {
+                    { CardValue.Two, 2 },
+                    { CardValue.Three, 3 },
+                    { CardValue.Four, 4 },
+                    { CardValue.Five, 5 },
+                    { CardValue.Six, 6 },
+                    { CardValue.Seven, 7 },
+                    { CardValue.Eight, 8 },
+                    { CardValue.Nine, 9 },
+                    { CardValue.Ten, 10 },
+                    { CardValue.Jack, 10 },
+                    { CardValue.Queen, 10 },
+                    { CardValue.King, 10 },
+                    { CardValue.Ace, 11 }
+                };
 
         internal Card(CardType type, CardValue value, bool isOpen = false)
         {
@@ -250,7 +308,12 @@ namespace csharp_console
 
         public override string ToString()
         {
-            return $"{Type} {(int)Value}";
+            return $"{Type} {Value}";
+        }
+
+        public int GetValue()
+        {
+            return cardParser[Value];
         }
     }
 
@@ -264,20 +327,20 @@ namespace csharp_console
 
     enum CardValue
     {
-        AceSmall = 1,
-        Two = 2,
-        Three = 3,
-        Four = 4,
-        Five = 5,
-        Six = 6,
-        Seven = 7,
-        Eight = 8,
-        Nine = 9,
-        Ten = 10,
-        Jack = 10,
-        Queen = 10,
-        King = 10,
-        Ace = 11
+        AceSmall,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Jack,
+        Queen,
+        King,
+        Ace
     }
 
     enum PlayerState
