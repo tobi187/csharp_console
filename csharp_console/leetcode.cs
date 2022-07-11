@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace csharp_console
 {
-    internal class leetcode
+    internal class Leetcode
     {
         public int DivisorSubstrings(int num, int k)
         {

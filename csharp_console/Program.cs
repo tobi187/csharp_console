@@ -1,6 +1,16 @@
 ﻿using csharp_console;
 using csharp_console.shortestPath;
+using csharp_console.leetcoding;
 
+var n2 = new TreeNode(val: 2);
+var n3 = new TreeNode(val: 3);
+var n1 = new TreeNode(val: 1, left: n2, right: n3);
+
+var bs = new Solution();
+var resul = bs.LargestValues(n1);
+
+foreach(var ddd in resul) Console.WriteLine(ddd);
+return;
 
 var f = File.ReadAllLines("shortestPath/cF.txt");
 
@@ -66,7 +76,7 @@ var bj = new BlackJack(new List<string>() { "Tobi" }, "Dealer");
 bj.PlayRound();
 
 
-var l = new leetcode();
+var l = new Leetcode();
 
 var cd = l.MaximumWhiteTiles(new int[][] { new int[] { 1, 5 }, new int[] { 10, 11 }, new int[] { 12, 18 }, new int[] { 20, 25 }, new int[] { 30, 32 } }, 10);
 Console.WriteLine(c);
