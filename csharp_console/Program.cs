@@ -1,85 +1,102 @@
 ﻿using csharp_console;
 using csharp_console.shortestPath;
 using csharp_console.leetcoding;
+using csharp_console.entwicklerheld;
 
-var n2 = new TreeNode(val: 2);
-var n3 = new TreeNode(val: 3);
-var n1 = new TreeNode(val: 1, left: n2, right: n3);
+var g = new int[10, 10]
+                     {{1, 0, 0, 0, 0, 1, 1, 0, 0, 0},
+                      {1, 0, 1, 0, 0, 0, 0, 0, 1, 0},
+                      {1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
+                      {1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+                      {0, 0, 0, 0, 1, 1, 1, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+                      {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-var bs = new Solution();
-var resul = bs.LargestValues(n1);
+var e = BattleShip.ValidateBattlefield(g);
 
-foreach(var ddd in resul) Console.WriteLine(ddd);
-return;
+Console.WriteLine(e);
 
-var f = File.ReadAllLines("shortestPath/cF.txt");
+//var n2 = new TreeNode(val: 2);
+//var n3 = new TreeNode(val: 3);
+//var n1 = new TreeNode(val: 1, left: n2, right: n3);
 
-var data = Enumerable.Range(1, 5).Select(x => x.ToString());
+//var bs = new Solution();
+//var resul = bs.LargestValues(n1);
 
-var adjList = new Dictionary<string, List<Edges>>();
+//foreach(var ddd in resul) Console.WriteLine(ddd);
+//return;
 
-foreach (var ch in data)
-{
-    var edges = new List<Edges>();
-    foreach (var line in f)
-    {
-        if (line.StartsWith(ch))
-        {
-            var dw = line.Split();
-            var ed = new Edges(dw[1], int.Parse(dw[2]));
-            edges.Add(ed);
-        }
-    }
-    adjList.Add(ch, edges);
-}
+//var f = File.ReadAllLines("shortestPath/cF.txt");
 
-var d = new CodeforcesDeikstra(adjList, "1", "5");
+//var data = Enumerable.Range(1, 5).Select(x => x.ToString());
 
-Console.WriteLine(d.GameLoop());
+//var adjList = new Dictionary<string, List<Edges>>();
 
-return;
+//foreach (var ch in data)
+//{
+//    var edges = new List<Edges>();
+//    foreach (var line in f)
+//    {
+//        if (line.StartsWith(ch))
+//        {
+//            var dw = line.Split();
+//            var ed = new Edges(dw[1], int.Parse(dw[2]));
+//            edges.Add(ed);
+//        }
+//    }
+//    adjList.Add(ch, edges);
+//}
 
-var c = File.ReadAllLines("shortestPath/citys.txt");
+//var d = new CodeforcesDeikstra(adjList, "1", "5");
 
-var e = File.ReadAllLines("shortestPath/weights.txt");
+//Console.WriteLine(d.GameLoop());
 
-// Dict<Node, List<Node>> -> 
+//return;
 
-ValueTuple<Node, List<Node>> GetAdjacency(string n)
-{
-    var neighbours = new List<Node>();
-    for (var i = 0; i < e.Length; i += 3)
-    {
-        if (n == e[i])
-        {
-            var node = new Node(e[i + 1], int.Parse(e[i + 2]));
-            neighbours.Add(node);
-        }
-    }
+//var c = File.ReadAllLines("shortestPath/citys.txt");
+
+//var e = File.ReadAllLines("shortestPath/weights.txt");
+
+//// Dict<Node, List<Node>> -> 
+
+//ValueTuple<Node, List<Node>> GetAdjacency(string n)
+//{
+//    var neighbours = new List<Node>();
+//    for (var i = 0; i < e.Length; i += 3)
+//    {
+//        if (n == e[i])
+//        {
+//            var node = new Node(e[i + 1], int.Parse(e[i + 2]));
+//            neighbours.Add(node);
+//        }
+//    }
     
-    return (new Node(n), neighbours);
-}
+//    return (new Node(n), neighbours);
+//}
 
-var adjacencyList = c.Select(x => GetAdjacency(x)).ToDictionary(x => x.Item1, x => x.Item2);
+//var adjacencyList = c.Select(x => GetAdjacency(x)).ToDictionary(x => x.Item1, x => x.Item2);
 
-var b = c.Select(x => new Node(x));
+//var b = c.Select(x => new Node(x));
 
-var dijkstra = new Deikstra(adjacencyList, "ATL", "LAX");
+//var dijkstra = new Deikstra(adjacencyList, "ATL", "LAX");
 
-var r = dijkstra.FindShortestPath();
+//var r = dijkstra.FindShortestPath();
 
-Console.WriteLine(r);
+//Console.WriteLine(r);
 
-return;
+//return;
 
-var bj = new BlackJack(new List<string>() { "Tobi" }, "Dealer");
-bj.PlayRound();
+//var bj = new BlackJack(new List<string>() { "Tobi" }, "Dealer");
+//bj.PlayRound();
 
 
-var l = new Leetcode();
+//var l = new Leetcode();
 
-var cd = l.MaximumWhiteTiles(new int[][] { new int[] { 1, 5 }, new int[] { 10, 11 }, new int[] { 12, 18 }, new int[] { 20, 25 }, new int[] { 30, 32 } }, 10);
-Console.WriteLine(c);
+//var cd = l.MaximumWhiteTiles(new int[][] { new int[] { 1, 5 }, new int[] { 10, 11 }, new int[] { 12, 18 }, new int[] { 20, 25 }, new int[] { 30, 32 } }, 10);
+//Console.WriteLine(c);
 
 
 //static bool IsHappy(int n)
