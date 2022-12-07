@@ -1,7 +1,5 @@
 //graph node edges ? linked adjacency list ?? 
 
-using System.Collections.Generic;
-
 namespace csharp_console.shortestPath
 {
     public class Deikstra
