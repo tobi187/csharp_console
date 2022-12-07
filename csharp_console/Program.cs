@@ -1,16 +1,14 @@
 ﻿using csharp_console;
 using csharp_console.shortestPath;
 using csharp_console.leetcoding;
+using csharp_console.entwicklerheld;
 
-var n2 = new TreeNode(val: 2);
-var n3 = new TreeNode(val: 3);
-var n1 = new TreeNode(val: 1, left: n2, right: n3);
+var aoc = new Aoc22D7();
 
-var bs = new Solution();
-var resul = bs.LargestValues(n1);
+aoc.ReadFile();
 
-foreach(var ddd in resul) Console.WriteLine(ddd);
 return;
+
 
 var f = File.ReadAllLines("shortestPath/cF.txt");
 
