@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="aoc\2215.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="entwicklerheld\aoc22d7.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

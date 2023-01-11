@@ -2,6 +2,13 @@
 using csharp_console.shortestPath;
 using csharp_console.leetcoding;
 using csharp_console.entwicklerheld;
+using csharp_console.aoc;
+
+var el = new Y22D22();
+
+el.Read();
+
+return;
 
 var g = new int[10, 10]
                      {{1, 0, 0, 0, 0, 1, 1, 0, 0, 0},
@@ -15,15 +22,9 @@ var g = new int[10, 10]
                       {0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
                       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-var e = BattleShip.ValidateBattlefield(g);
-var resul = bs.LargestValues(n1);
-Console.WriteLine(e);
-foreach(var ddd in resul) Console.WriteLine(ddd);
 //var n2 = new TreeNode(val: 2);
 //var n3 = new TreeNode(val: 3);
 //var n1 = new TreeNode(val: 1, left: n2, right: n3);
-
-var f = File.ReadAllLines("shortestPath/cF.txt");
 
 //var bs = new Solution();
 //var resul = bs.LargestValues(n1);
